@@ -2,34 +2,45 @@
 
 **I direct AI agents to build and run production infrastructure, and I publish where they fail.**
 
-Infrastructure · cybersecurity · AI inference and agent operations · Michigan · remote · [kitporath.com](https://kitporath.com)
+Infrastructure · cybersecurity · local AI inference and agent operations · Michigan · remote · [kitporath.com](https://kitporath.com)
 
 I spent more than twenty years in automotive manufacturing, much of it leading production
 teams, before I got serious about computers. I started with cybersecurity, built
-infrastructure to practice on, and rebuilt it three times. Today it is KWS, a private cloud in
-my workshop: 19 monitored hosts on a Cisco Nexus 10G/40G fabric, a six-node RKE2 Kubernetes
-cluster driven by ArgoCD, a three-node HA Vault, nine tested layers of defense in depth, and a
-multi-GPU inference tier I serve and tune myself.
+infrastructure to practice on, and rebuilt it three times. Today it is a private cloud in my
+workshop, and I build and run its physical and platform layers myself: the rack, the 10G and
+40G network on Cisco Nexus, Proxmox and OpenNebula/KVM, Kubernetes across three generations
+(k3s, Talos, RKE2), LINSTOR/DRBD, MinIO and ZFS storage, and ArgoCD GitOps. Agents running on
+open-weight models on my own hardware write the application software and run most of the
+routine operations. My part is the architecture, the specs and constraints the agents work
+under, and deciding what merges. I don't write or read application source code (Go, Python,
+TypeScript).
 
-I don't write or read application source code (Go, Python, TypeScript). Agents write it under
-my direction. Local open-weight models carry the routine work, by my own accounting about 90%
-of operations and 80% of coding, and I bring in frontier models for large decisions and deep
-root causes. My part is the architecture, the specs, the permission boundaries, and deciding
-what merges, checked against CI and the running system.
+The cloud is built as nine layers of defense in depth, because agents do most of the work: an
+OPNsense edge firewall with Suricata, a cluster with no route to the internet, Cilium
+default-deny between apps, Keycloak single sign-on, HA Vault with offline unseal keys, an
+internal CA, digest-pinned images, Trivy and gitleaks in CI, Falco with automatic pod
+quarantine, host hardening, and encrypted offsite backups. Each layer has been tested, and
+[kitporath.com](https://kitporath.com/#defense) lists how.
 
-### The audit
+The inference tier is the third pillar, and it is hand-tuned: GPUs up to 32GB running
+llama.cpp and ExLlamaV3, with the KV-cache budgets, quantization choices and a 180B model
+split across CPU and GPU worked out by me. LiteLLM fronts it and MCP servers give the agents
+their tools. By my own accounting, local open-weight models carry about 90% of this estate's
+operations and 80% of its coding, and I bring in frontier models, currently Claude 5.5 and
+Gemini 4 Argon, for the big decisions and the deep root causes.
 
-In August I audited 13 claims that three AI systems and I made about this estate. Eight
-contained a material error, three of them mine, and seven of the eight were a correct
-measurement aimed at the wrong surface. One agent reported critical CVEs down 80%. The rescan
-said 28%, and that is the number on record.
-[Read the analysis](https://github.com/kitporath/kws/blob/main/docs/agent-failure-analysis.md).
+I also publish where the agents get it wrong. In August I audited thirteen claims that three
+AI systems and I made about this estate, and eight of them contained a material error, three
+of them mine. Seven of the eight were a correct measurement taken against the wrong surface.
+One agent reported critical CVEs down 80%, the rescan said 28%, and fifteen of the images it
+had retired as unused were still running in the cluster, the CNI among them. The 28% is the
+number on record. [The analysis is here](https://github.com/kitporath/kws/blob/main/docs/agent-failure-analysis.md).
 
 ### What's here
 
 | | |
 |---|---|
-| [kws](https://github.com/kitporath/kws) | The private AI cloud: architecture, decision records with the rejected alternatives, and incident write-ups, including the [error analysis](https://github.com/kitporath/kws/blob/main/docs/agent-failure-analysis.md) above |
+| [kws](https://github.com/kitporath/kws) | The private AI cloud: architecture, decision records with the rejected alternatives, and incident write-ups, including the error analysis above |
 | [hirdforge](https://github.com/kitporath/hirdforge) | A multi-agent engineering platform on production Kubernetes. The public extract is 67,115 lines of Go, and `git shortlog -sn` shows agents authored 382 of its 808 non-merge commits |
 | [asgard](https://github.com/kitporath/asgard) | The infrastructure generation before KWS: Proxmox, Talos, 10G |
 
@@ -44,6 +55,6 @@ reaches outside it waits for my approval. **Groundly** is a self-hosted research
 that cites the exact passage behind every claim, or says the sources don't support an answer.
 I'm happy to demo either.
 
-Open to remote US roles in AI infrastructure, AI platform, agent operations and platform
-engineering.
+Open to remote US roles in AI infrastructure, AI platform, agent operations, platform
+engineering and forward-deployed engineering.
 [kitporath@gmail.com](mailto:kitporath@gmail.com) · [linkedin.com/in/kitporath](https://www.linkedin.com/in/kitporath) · [résumé](https://kitporath.com/resume) · [evidence](https://kitporath.com/evidence)
